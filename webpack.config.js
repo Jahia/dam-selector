@@ -15,7 +15,7 @@ module.exports = (env, argv) => {
         },
         output: {
             path: path.resolve(__dirname, 'src/main/resources/javascript/apps/'),
-            filename: 'cloudinaryPicker.bundle.js',
+            filename: 'damSelector.bundle.js',
             chunkFilename: '[name].jahia.[chunkhash:6].js'
         },
         resolve: {
@@ -86,8 +86,8 @@ module.exports = (env, argv) => {
         },
         plugins: [
             new ModuleFederationPlugin({
-                name: "cloudinaryPickerPlugin",
-                library: { type: "assign", name: "appShell.remotes.cloudinaryPickerPlugin" },
+                name: "damSelectorPlugin",
+                library: { type: "assign", name: "appShell.remotes.damSelectorPlugin" },
                 filename: "remoteEntry.js",
                 exposes: {
                     './init': './src/javascript/init'
