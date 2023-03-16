@@ -2,24 +2,36 @@ import React from 'react'
 import {Dropdown} from '@jahia/moonstone';
 import {useTranslation} from 'react-i18next';
 import {registry,DisplayAction} from '@jahia/ui-extender';
+import {LoaderOverlay} from '../DesignSystem/LoaderOverlay';
+import {useQuery} from "@apollo/react-hooks";
+import {weakrefContentPropsQuery} from "./components/weakrefContentProps.gql-queries";
 
+
+const getLabel = (field, value) => {
+    const choiceListLabels = field.selectorOptions.find( ({ name }) => name === "choiceListLabels");
+    const choiceListPickers = field.selectorOptions.find( ({ name }) => name === "choiceListPickers");
+    const index = choiceListPickers.values.indexOf(value);
+
+    return choiceListLabels.values[index];
+}
 
 //Create a dropdown list with by default "jahia", then get from the config the list of DAM to enable <name><selectorType>
 export const DamSelector = (props) => {
     const {field, id, value, editorContext, inputContext, onChange} = props
     const {t} = useTranslation();
+
     //TODO do an choiceListValue based on weak ref content type ?
-    const [choiceListIndex,setChoiceListIndex] = React.useState();
+    const [selectedChoiceListValue,setSelectedChoiceListValue] = React.useState();
     console.log("[DamSelector] field : ",field)
+    console.log("[DamSelector] value : ",value)
+
     const choiceListLabels = field.selectorOptions.find( ({ name }) => name === "choiceListLabels");
-    const choiceListPicker = field.selectorOptions.find( ({ name }) => name === "choiceListPicker");
-    // options.values.forEach(v => {
-    //     const [label,picker] = JSON.parse(v);
-    //     console.log("[DamSelector] label :",label,"; picker :",picker);
-    // })
+    const choiceListPickers = field.selectorOptions.find( ({ name }) => name === "choiceListPickers");
+    const choiceListNodeTypes = field.selectorOptions.find( ({ name }) => name === "choiceListNodeTypes");
+
     const {readOnly, label,/* iconName,*/ dropdownData} = React.useMemo(() => ({
         readOnly: field.readOnly || field.valueConstraints.length === 0,
-        label: "",//getLabel(field, value, t),
+        label: getLabel(field, selectedChoiceListValue),
         // iconName: getIconOfField(field, value) || '',
         dropdownData: choiceListLabels.values.length > 0 ? choiceListLabels.values.map( (item,index) => {
             // const image = item.properties?.find(property => property.name === 'image')?.value;
@@ -28,25 +40,63 @@ export const DamSelector = (props) => {
             // const iconEnd = item.properties?.find(property => property.name === 'iconEnd')?.value;
             return {
                 label: item,
-                value: index,
+                value: choiceListPickers.values[index],
                 // description: t(description),
                 // iconStart: iconStart && toIconComponent(iconStart),
                 // iconEnd: iconEnd && toIconComponent(iconEnd),
                 // image: image && <img src={image} alt={item.displayValue}/>,
                 attributes: {
-                    'data-value': index
+                    'data-value': choiceListPickers.values[index]
                 }
             };
         }) : [{label: '', value: ''}]
-    }), [t, field, value]);
+    }), [t, field, selectedChoiceListValue]);
+
+    const variables = {
+        uuid : value,
+        skip: !value
+    };
+
+    const {loading, error, data} = useQuery(weakrefContentPropsQuery, {
+        variables
+    });
+
+    if (error) {
+        const message = t(
+            'jcontent:label.jcontent.error.queryingContent',
+            {details: error.message ? error.message : ''}
+        );
+
+        console.warn(message);
+    }
+
+    if (loading) {
+        return <LoaderOverlay/>;
+    }
+
+    console.log("[DamSelector] data : ",data)
+    const choiceListValueIndex = choiceListNodeTypes.values.indexOf(data?.jcr?.result?.primaryNodeType?.name);
+    const choiceListValue = choiceListPickers.values[choiceListValueIndex] || null;
+
+
 
     const getPicker = () => {
-        if(!choiceListIndex || choiceListIndex < 0)
+        if(!selectedChoiceListValue && !choiceListValue)
             return null;
 
-        const pickerName = choiceListPicker.values[choiceListIndex];
-        const registerComponent = registry.get('selectorType',pickerName);
+        // const pickerName = choiceListPickers.values[choiceListIndex];
+        let registerComponent = registry.get('selectorType',selectedChoiceListValue || choiceListValue);
+
+        if(!registerComponent.cmp)
+            registerComponent = registerComponent.resolver([],field);//{name:'type',value:'file'}
+
         const Component = registerComponent.cmp;
+        if(selectedChoiceListValue)
+            props = {
+                ...props,
+                value:null
+            }
+
         return <Component {...props}/>
     }
 
@@ -63,15 +113,15 @@ export const DamSelector = (props) => {
                     variant="outlined"
                     size="medium"
                     data={dropdownData}
-                    label={label}
-                    value={choiceListIndex}
+                    label={label || getLabel(field,choiceListValue)}
+                    value={choiceListValue}
                     // icon={iconName && toIconComponent(iconName)}
                     hasSearch={dropdownData && dropdownData.length >= 5}
                     searchEmptyText={t('content-editor:label.contentEditor.global.noResult')}
                     onChange={(evt, item) => {
                         if (item.value !== value) {
                             console.log(item.value);
-                            setChoiceListIndex(item.value)
+                            setSelectedChoiceListValue(item.value)
                         }
                     }}
                     // onBlur={onBlur}
@@ -84,7 +134,7 @@ export const DamSelector = (props) => {
                 {/*    />*/}
                 {/*)}*/}
             </div>
-            <div>
+            <div className="flexFluid flexRow alignCenter">
                 {getPicker()}
             </div>
         </>
