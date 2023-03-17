@@ -75,7 +75,11 @@ export const DamSelector = (props) => {
     }
 
     console.log("[DamSelector] data : ",data)
-    const choiceListValueIndex = choiceListNodeTypes.values.indexOf(data?.jcr?.result?.primaryNodeType?.name);
+    const types = data?.jcr?.result?.mixinTypes?.map(mixin => mixin.name) || [] //data?.jcr?.result?.primaryNodeType?.name
+    types.push(data?.jcr?.result?.primaryNodeType?.name);
+    const intersection = choiceListNodeTypes.values.filter(type => types.includes(type));
+
+    const choiceListValueIndex = choiceListNodeTypes.values.indexOf(intersection[0]);
     const choiceListValue = choiceListPickers.values[choiceListValueIndex] || null;
 
 
@@ -86,12 +90,20 @@ export const DamSelector = (props) => {
 
         // const pickerName = choiceListPickers.values[choiceListIndex];
         let registerComponent = registry.get('selectorType',selectedChoiceListValue || choiceListValue);
-
-        if(!registerComponent.cmp)
+        const registerComponentInputContext = {...inputContext}
+        if(!registerComponent.cmp){
             registerComponent = registerComponent.resolver([],field);//{name:'type',value:'file'}
+            registerComponentInputContext.selectorType = registerComponent;
+        }
+        props = {
+            ...props,
+            inputContext:registerComponentInputContext,
+        }
+
 
         const Component = registerComponent.cmp;
-        if(selectedChoiceListValue)
+
+        if(selectedChoiceListValue && selectedChoiceListValue !== choiceListValue)
             props = {
                 ...props,
                 value:null

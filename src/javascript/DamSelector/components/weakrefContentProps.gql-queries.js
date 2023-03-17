@@ -7,6 +7,7 @@ export const weakrefContentPropsQuery = gql`
             result: nodeById(uuid: $uuid) {
                 ...NodeCacheRequiredFields
                 primaryNodeType {name}
+                mixinTypes {name}
             }
         }
     }
