@@ -6,47 +6,43 @@ import {LoaderOverlay} from '../DesignSystem/LoaderOverlay';
 import {useQuery} from "@apollo/react-hooks";
 import {weakrefContentPropsQuery} from "./components/weakrefContentProps.gql-queries";
 
-
-const getLabel = (field, value) => {
-    const choiceListLabels = field.selectorOptions.find( ({ name }) => name === "choiceListLabels");
-    const choiceListPickers = field.selectorOptions.find( ({ name }) => name === "choiceListPickers");
-    const index = choiceListPickers.values.indexOf(value);
-
-    return choiceListLabels.values[index];
-}
-
 //Create a dropdown list with by default "jahia", then get from the config the list of DAM to enable <name><selectorType>
 export const DamSelector = (props) => {
     const {field, id, value, editorContext, inputContext, onChange} = props
     const {t} = useTranslation();
 
-    //TODO do an choiceListValue based on weak ref content type ?
     const [selectedChoiceListValue,setSelectedChoiceListValue] = React.useState();
-    console.log("[DamSelector] field : ",field)
-    console.log("[DamSelector] value : ",value)
+    // console.log("[DamSelector] field : ",field)
+    // console.log("[DamSelector] value : ",value)
 
-    const choiceListLabels = field.selectorOptions.find( ({ name }) => name === "choiceListLabels");
-    const choiceListPickers = field.selectorOptions.find( ({ name }) => name === "choiceListPickers");
-    const choiceListNodeTypes = field.selectorOptions.find( ({ name }) => name === "choiceListNodeTypes");
+    const choiceListPickers = field.selectorOptions.find( ({ name }) => name === "choiceListPickers")?.values || [];
+
+    // [['jahia','widen',...],[['jmix:image','jnt:file],[],...]]
+    const [choiceListLabels,choiceListNodeTypes] = choiceListPickers.reduce((config,pickerName) => {
+            const [labels,nodeTypes] = config;
+            labels.push(registry.get('damSelectorConfiguration',pickerName)?.label || 'label unknown');
+            nodeTypes.push(registry.get('damSelectorConfiguration',pickerName)?.types || []);
+            return [labels,nodeTypes];
+        },[[],[]]);
 
     const {readOnly, label,/* iconName,*/ dropdownData} = React.useMemo(() => ({
         readOnly: field.readOnly || field.valueConstraints.length === 0,
-        label: getLabel(field, selectedChoiceListValue),
+        label: choiceListLabels[choiceListPickers.indexOf(selectedChoiceListValue)],
         // iconName: getIconOfField(field, value) || '',
-        dropdownData: choiceListLabels.values.length > 0 ? choiceListLabels.values.map( (item,index) => {
+        dropdownData: choiceListLabels.length > 0 ? choiceListLabels.map( (item,index) => {
             // const image = item.properties?.find(property => property.name === 'image')?.value;
             // const description = item.properties?.find(property => property.name === 'description')?.value;
             // const iconStart = item.properties?.find(property => property.name === 'iconStart')?.value;
             // const iconEnd = item.properties?.find(property => property.name === 'iconEnd')?.value;
             return {
                 label: item,
-                value: choiceListPickers.values[index],
+                value: choiceListPickers[index],
                 // description: t(description),
                 // iconStart: iconStart && toIconComponent(iconStart),
                 // iconEnd: iconEnd && toIconComponent(iconEnd),
                 // image: image && <img src={image} alt={item.displayValue}/>,
                 attributes: {
-                    'data-value': choiceListPickers.values[index]
+                    'data-value': choiceListPickers[index]
                 }
             };
         }) : [{label: '', value: ''}]
@@ -75,12 +71,17 @@ export const DamSelector = (props) => {
     }
 
     console.log("[DamSelector] data : ",data)
-    const types = data?.jcr?.result?.mixinTypes?.map(mixin => mixin.name) || [] //data?.jcr?.result?.primaryNodeType?.name
-    types.push(data?.jcr?.result?.primaryNodeType?.name);
-    const intersection = choiceListNodeTypes.values.filter(type => types.includes(type));
+    const currentNodeTypes = data?.jcr?.result?.primaryNodeType.supertypes?.map(stypes => stypes.name) || [] //data?.jcr?.result?.primaryNodeType?.name
+    currentNodeTypes.push(data?.jcr?.result?.primaryNodeType?.name);
 
-    const choiceListValueIndex = choiceListNodeTypes.values.indexOf(intersection[0]);
-    const choiceListValue = choiceListPickers.values[choiceListValueIndex] || null;
+    const choiceListValueIndex = choiceListNodeTypes.reduce( (selectedNodeTypeIndex,nodeTypes,index) => {
+        const intersection = nodeTypes.filter(nodeType => currentNodeTypes.includes(nodeType));
+        if(intersection.length)
+            return index;
+        return selectedNodeTypeIndex;
+    },-1);
+
+    const choiceListValue = choiceListPickers[choiceListValueIndex] || null;
 
 
 
@@ -125,7 +126,7 @@ export const DamSelector = (props) => {
                     variant="outlined"
                     size="medium"
                     data={dropdownData}
-                    label={label || getLabel(field,choiceListValue)}
+                    label={label || choiceListLabels[choiceListPickers.indexOf(choiceListValue)]}
                     value={choiceListValue}
                     // icon={iconName && toIconComponent(iconName)}
                     hasSearch={dropdownData && dropdownData.length >= 5}
