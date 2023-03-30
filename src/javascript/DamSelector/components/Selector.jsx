@@ -1,8 +1,6 @@
 import React from 'react'
 import {Dropdown} from '@jahia/moonstone';
 import {useTranslation} from 'react-i18next';
-// import {registry,DisplayAction} from '@jahia/ui-extender';
-// import {useNodeInfo} from '@jahia/data-helper';
 import {LoaderOverlay} from '../../DesignSystem/LoaderOverlay';
 import {useQuery} from "@apollo/react-hooks";
 import {weakrefContentPropsQuery} from "./weakrefContentProps.gql-queries";
