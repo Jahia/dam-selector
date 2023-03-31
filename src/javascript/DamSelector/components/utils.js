@@ -6,8 +6,8 @@ export const getPicker = (damSelectorConfig,field) => {
         return null;
 
     let selectorType = registry.get('selectorType',damSelectorConfig.key);
-    if(!selectorType.cmp)
-        selectorType = selectorType.resolver([],field);//{name:'type',value:'file'}
+    if(!selectorType.cmp)//field.selectorOptions ||
+        selectorType = selectorType.resolver(field.selectorOptions || [],field);//{name:'type',value:'file'}
 
     return selectorType;
 }

@@ -10,7 +10,7 @@ export const weakrefContentPropsQuery = gql`
                     name
                     supertypes{name}
                 }
-#                mixinTypes {name}
+                mixinTypes {name}
             }
         }
     }

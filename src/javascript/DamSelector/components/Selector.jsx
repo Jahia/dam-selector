@@ -1,22 +1,19 @@
 import React from 'react'
-import {Dropdown} from '@jahia/moonstone';
 import {useTranslation} from 'react-i18next';
-import {LoaderOverlay} from '../../DesignSystem/LoaderOverlay';
-import {useQuery} from "@apollo/react-hooks";
-import {weakrefContentPropsQuery} from "./weakrefContentProps.gql-queries";
-import {getPicker} from "./utils";
-
+import {Dropdown} from "@jahia/moonstone";
+import {PickerComponent} from "./PickerComponent";
 
 //Create a dropdown list with by default "jahia", then get from the config the list of DAM to enable <name><selectorType>
 export const Selector = (props) => {
-    const {damSelectorConfigs, field, id, value, editorContext, inputContext} = props
+    const {damSelectorConfigs, valueChoiceListConfig, field, id, value, editorContext, inputContext} = props
     const {t} = useTranslation();
 
-    const [selectedChoiceListConfig,setSelectedChoiceListConfig] = React.useState();
+    const [selectedChoiceListConfig,setSelectedChoiceListConfig] = React.useState(valueChoiceListConfig);
+    const [resetValue,setResetValue] = React.useState(false);
 
     const {readOnly, label,/* iconName,*/ dropdownData} = React.useMemo(() => ({
         readOnly: field.readOnly || field.valueConstraints.length === 0,
-        label: selectedChoiceListConfig?.label,
+        label: selectedChoiceListConfig?.label || 'Select a provider',
         // iconName: getIconOfField(field, value) || '',
         dropdownData: damSelectorConfigs.length > 0 ? damSelectorConfigs.map( ({key:picker,label},index) => {
             // const image = item.properties?.find(property => property.name === 'image')?.value;
@@ -37,49 +34,6 @@ export const Selector = (props) => {
         }) : [{label: '', value: ''}]
     }), [t, field, selectedChoiceListConfig]);
 
-    const {loading, error, data} = useQuery(weakrefContentPropsQuery, {
-        variables:{
-            uuid : value,
-            skip: !value
-        }
-    });
-
-    if (error) {
-        const message = t(
-            'jcontent:label.jcontent.error.queryingContent',
-            {details: error.message ? error.message : nodeError.message ? nodeError.message : ''}
-        );
-
-        console.warn(message);
-    }
-
-    if (loading) {
-        return <LoaderOverlay/>;
-    }
-
-    console.log("[Selector] data : ",data)
-    const currentNodeTypes = data?.jcr?.result?.primaryNodeType.supertypes?.map(stypes => stypes.name) || [] //data?.jcr?.result?.primaryNodeType?.name
-    currentNodeTypes.push(data?.jcr?.result?.primaryNodeType?.name);
-
-    const choiceListConfig = damSelectorConfigs.find( ({types:damSelectorConfigNodeTypes}) =>
-        damSelectorConfigNodeTypes.filter(damSelectorConfigNodeType => currentNodeTypes.includes(damSelectorConfigNodeType)).length);
-
-    const getPickerComponent = () => {
-        if(!selectedChoiceListConfig && !choiceListConfig)
-            return null;
-
-        const selectorType = getPicker(selectedChoiceListConfig || choiceListConfig,field);
-        const Component = selectorType.cmp;
-        const selectorValue = (selectedChoiceListConfig && selectedChoiceListConfig !== choiceListConfig) ? null : value;
-        return <Component {...{
-            ...props,
-            inputContext:{
-                ...inputContext,
-                selectorType
-            },
-            value:selectorValue
-        }}/>
-    }
 
     return (
         <>
@@ -94,15 +48,18 @@ export const Selector = (props) => {
                     variant="outlined"
                     size="medium"
                     data={dropdownData}
-                    label={label || choiceListConfig?.label || 'label unknown hein!'}
-                    value={choiceListConfig?.key}
+                    label={label}
+                    value={selectedChoiceListConfig?.key}
                     // icon={iconName && toIconComponent(iconName)}
                     hasSearch={dropdownData && dropdownData.length >= 5}
                     searchEmptyText={t('content-editor:label.contentEditor.global.noResult')}
                     onChange={(evt, item) => {
-                        if (item.value !== value) {
+                        if (item.value !== selectedChoiceListConfig?.key) {
                             console.log(item.value);
-                            setSelectedChoiceListConfig(damSelectorConfigs.find( ({key:picker}) => picker === item.value));
+                            const changedChoiceListConfig = damSelectorConfigs.find( ({key:picker}) => picker === item.value);
+                            setSelectedChoiceListConfig(changedChoiceListConfig);
+
+                            setResetValue(valueChoiceListConfig.key === item.value ? false : true);
                         }
                     }}
                     // onBlur={onBlur}
@@ -116,7 +73,7 @@ export const Selector = (props) => {
                 {/*)}*/}
             </div>
             <div className="flexFluid flexRow alignCenter">
-                {getPickerComponent()}
+                <PickerComponent choiceListConfig={selectedChoiceListConfig} resetValue={resetValue} {...props}/>
             </div>
         </>
     )
