@@ -12,7 +12,7 @@ export const Selector = (props) => {
     const [resetValue,setResetValue] = React.useState(false);
 
     const {readOnly, label,/* iconName,*/ dropdownData} = React.useMemo(() => ({
-        readOnly: field.readOnly || field.valueConstraints.length === 0,
+        readOnly: field.readOnly /*|| field.valueConstraints.length === 0*/,
         label: selectedChoiceListConfig?.label || 'Select a provider',
         // iconName: getIconOfField(field, value) || '',
         dropdownData: damSelectorConfigs.length > 0 ? damSelectorConfigs.map( ({key:picker,label},index) => {
@@ -55,10 +55,9 @@ export const Selector = (props) => {
                     searchEmptyText={t('content-editor:label.contentEditor.global.noResult')}
                     onChange={(evt, item) => {
                         if (item.value !== selectedChoiceListConfig?.key) {
-                            console.log(item.value);
+                            // console.log(item.value);
                             const changedChoiceListConfig = damSelectorConfigs.find( ({key:picker}) => picker === item.value);
                             setSelectedChoiceListConfig(changedChoiceListConfig);
-
                             setResetValue(valueChoiceListConfig.key === item.value ? false : true);
                         }
                     }}
