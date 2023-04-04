@@ -75,7 +75,8 @@ module.exports = (env, argv) => {
                 },
                 {
                     test: /\.(png|svg|gif)$/,
-                    use: ['file-loader']
+                    type: 'asset/resource'
+                    // use: ['file-loader']
                 },
                 {
                     test: /\.(woff(2)?|ttf|eot|svg)(\?v=\d+\.\d+\.\d+)?$/,

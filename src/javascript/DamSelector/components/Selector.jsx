@@ -1,10 +1,18 @@
 import React from 'react'
 import {useTranslation} from 'react-i18next';
-import {Dropdown} from "@jahia/moonstone";
+import {Dropdown, toIconComponent} from "@jahia/moonstone";
 import {PickerComponent} from "./PickerComponent";
+import {withStyles} from '@material-ui/core';
+import clsx from 'clsx';
+
+const styles = () => ({
+    selector: {
+        marginBottom:  'var(--spacing-nano)'
+    }
+});
 
 //Create a dropdown list with by default "jahia", then get from the config the list of DAM to enable <name><selectorType>
-export const Selector = (props) => {
+const SelectorCmp = ({classes,...props}) => {
     const {damSelectorConfigs, valueChoiceListConfig, field, id, value, editorContext, inputContext} = props
     const {t} = useTranslation();
 
@@ -15,16 +23,16 @@ export const Selector = (props) => {
         readOnly: field.readOnly /*|| field.valueConstraints.length === 0*/,
         label: selectedChoiceListConfig?.label || 'Select a provider',
         // iconName: getIconOfField(field, value) || '',
-        dropdownData: damSelectorConfigs.length > 0 ? damSelectorConfigs.map( ({key:picker,label},index) => {
+        dropdownData: damSelectorConfigs.length > 0 ? damSelectorConfigs.map( ({key:picker,label,icon},index) => {
             // const image = item.properties?.find(property => property.name === 'image')?.value;
             // const description = item.properties?.find(property => property.name === 'description')?.value;
-            // const iconStart = item.properties?.find(property => property.name === 'iconStart')?.value;
+            const iconStart = icon;
             // const iconEnd = item.properties?.find(property => property.name === 'iconEnd')?.value;
             return {
                 label,
                 value: picker,
                 // description: t(description),
-                // iconStart: iconStart && toIconComponent(iconStart),
+                iconStart: iconStart && toIconComponent(iconStart),
                 // iconEnd: iconEnd && toIconComponent(iconEnd),
                 // image: image && <img src={image} alt={item.displayValue}/>,
                 attributes: {
@@ -37,7 +45,7 @@ export const Selector = (props) => {
 
     return (
         <>
-            <div className="flexFluid flexRow alignCenter">
+            <div className={clsx("flexFluid flexRow alignCenter",classes.selector)}>
                 <Dropdown
                     className="flexFluid"
                     name={field.name}
@@ -77,3 +85,4 @@ export const Selector = (props) => {
         </>
     )
 }
+export const Selector = withStyles(styles)(SelectorCmp);

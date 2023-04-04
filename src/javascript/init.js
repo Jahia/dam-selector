@@ -1,6 +1,6 @@
 import {registry} from '@jahia/ui-extender';
 import {DamSelector} from './DamSelector';
-
+import svgJahiaLogo from './asset/jahiaLogo.svg'
 export default function () {
     registry.add('callback', 'damChoiceListSelectorType',{
         targets:['jahiaApp-init:20'],
@@ -11,7 +11,8 @@ export default function () {
             registry.add('damSelectorConfiguration','Picker',{
                 types: ['jmix:image','jnt:file'],
                 label:'Jahia',
-                module:'default'
+                module:'default',
+                icon: svgJahiaLogo
             });
         }
     })
