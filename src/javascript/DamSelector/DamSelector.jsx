@@ -4,13 +4,13 @@ import {useTranslation} from 'react-i18next';
 import {registry,DisplayAction} from '@jahia/ui-extender';
 import {useNodeInfo} from '@jahia/data-helper';
 import {LoaderOverlay} from '../DesignSystem/LoaderOverlay';
-import {getPicker, Selector, weakrefContentPropsQuery} from "./components";
+import {Selector, weakrefContentPropsQuery} from "./components";
 import {useQuery} from "@apollo/react-hooks";
 import {PickerComponent} from "./components";
 
 //Create a dropdown list with by default "jahia", then get from the config the list of DAM to enable <name><selectorType>
 export const DamSelector = (props) => {
-    const {field, id, value, editorContext, inputContext, onChange} = props
+    const {value, editorContext} = props
     const {t} = useTranslation();
 
     //Check modules loaded to prepare the selector
@@ -52,7 +52,7 @@ export const DamSelector = (props) => {
     const primaryNodeType = weakNode?.primaryNodeType?.name;
     const valueNodeTypes = [primaryNodeType,...superTypes,...mixinTypes];
 
-    //case 'default' that mean jahia picker
+    //case 'default' that means jahia picker
     if(damSelectorConfigs.length === 1){
         //check if current content is a jnt:file
         const valueCannotBeManagedByJahiaPicker = !valueNodeTypes.includes("jnt:file");

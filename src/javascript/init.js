@@ -1,6 +1,10 @@
 import {registry} from '@jahia/ui-extender';
 import {DamSelector} from './DamSelector';
 import svgJahiaLogo from './asset/jahiaLogo.svg'
+import i18next from 'i18next';
+
+i18next.loadNamespaces('dam-selector');
+
 export default function () {
     registry.add('callback', 'damChoiceListSelectorType',{
         targets:['jahiaApp-init:20'],
@@ -10,7 +14,8 @@ export default function () {
             //add config for the jahia picker
             registry.add('damSelectorConfiguration','Picker',{
                 types: ['jmix:image','jnt:file'],
-                label:'Jahia',
+                label:'dam-selector:label.selectorConfig.label',
+                description: 'dam-selector:label.selectorConfig.description',
                 module:'default',
                 icon: svgJahiaLogo
             });

@@ -21,17 +21,17 @@ const SelectorCmp = ({classes,...props}) => {
 
     const {readOnly, label,/* iconName,*/ dropdownData} = React.useMemo(() => ({
         readOnly: field.readOnly /*|| field.valueConstraints.length === 0*/,
-        label: selectedChoiceListConfig?.label || 'Select a provider',
-        // iconName: getIconOfField(field, value) || '',
-        dropdownData: damSelectorConfigs.length > 0 ? damSelectorConfigs.map( ({key:picker,label,icon},index) => {
+        label: t(selectedChoiceListConfig?.label || 'dam-selector:dropDown.emptyLabel'),
+        iconName: toIconComponent(selectedChoiceListConfig?.icon) || '', //getIconOfField(field, value) || '',
+        dropdownData: damSelectorConfigs.length > 0 ? damSelectorConfigs.map( ({key:picker,label,icon,description},index) => {
             // const image = item.properties?.find(property => property.name === 'image')?.value;
             // const description = item.properties?.find(property => property.name === 'description')?.value;
             const iconStart = icon;
             // const iconEnd = item.properties?.find(property => property.name === 'iconEnd')?.value;
             return {
-                label,
+                label:t(label),
                 value: picker,
-                // description: t(description),
+                description: t(description),
                 iconStart: iconStart && toIconComponent(iconStart),
                 // iconEnd: iconEnd && toIconComponent(iconEnd),
                 // image: image && <img src={image} alt={item.displayValue}/>,
@@ -66,7 +66,7 @@ const SelectorCmp = ({classes,...props}) => {
                             // console.log(item.value);
                             const changedChoiceListConfig = damSelectorConfigs.find( ({key:picker}) => picker === item.value);
                             setSelectedChoiceListConfig(changedChoiceListConfig);
-                            setResetValue(valueChoiceListConfig.key === item.value ? false : true);
+                            setResetValue(valueChoiceListConfig?.key === item.value ? false : true);
                         }
                     }}
                     // onBlur={onBlur}

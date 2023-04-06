@@ -1,13 +1,11 @@
 {
   "label": {
-    "settings": {
-      "title": "DAM Selector setting"
+    "selectorConfig": {
+      "label": "Jahia",
+      "description": "Pick a content from Jahia"
     },
-    "action": {
-      "title": "DAM Selector - How to extend the ui ?"
-    },
-    "appsAccordion": {
-      "title": "DAM Selector"
+    "dropDown": {
+      "emptyLabel": "Select a provider"
     }
   }
 }
