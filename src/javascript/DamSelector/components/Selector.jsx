@@ -19,10 +19,10 @@ const SelectorCmp = ({classes,...props}) => {
     const [selectedChoiceListConfig,setSelectedChoiceListConfig] = React.useState(valueChoiceListConfig);
     const [resetValue,setResetValue] = React.useState(false);
 
-    const {readOnly, label,/* iconName,*/ dropdownData} = React.useMemo(() => ({
+    const {readOnly, label, iconName, dropdownData} = React.useMemo(() => ({
         readOnly: field.readOnly /*|| field.valueConstraints.length === 0*/,
-        label: t(selectedChoiceListConfig?.label || 'dam-selector:dropDown.emptyLabel'),
-        iconName: toIconComponent(selectedChoiceListConfig?.icon) || '', //getIconOfField(field, value) || '',
+        label: t(selectedChoiceListConfig?.label || 'dam-selector:label.dropDown.emptyLabel'),
+        iconName: selectedChoiceListConfig?.icon || '', //getIconOfField(field, value) || '',
         dropdownData: damSelectorConfigs.length > 0 ? damSelectorConfigs.map( ({key:picker,label,icon,description},index) => {
             // const image = item.properties?.find(property => property.name === 'image')?.value;
             // const description = item.properties?.find(property => property.name === 'description')?.value;
@@ -58,7 +58,7 @@ const SelectorCmp = ({classes,...props}) => {
                     data={dropdownData}
                     label={label}
                     value={selectedChoiceListConfig?.key}
-                    // icon={iconName && toIconComponent(iconName)}
+                    icon={iconName && toIconComponent(iconName)}
                     hasSearch={dropdownData && dropdownData.length >= 5}
                     searchEmptyText={t('content-editor:label.contentEditor.global.noResult')}
                     onChange={(evt, item) => {
