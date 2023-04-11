@@ -22,7 +22,7 @@ const SelectorCmp = ({classes,...props}) => {
     const {readOnly, label, iconName, dropdownData} = React.useMemo(() => ({
         readOnly: field.readOnly /*|| field.valueConstraints.length === 0*/,
         label: t(selectedChoiceListConfig?.label || 'dam-selector:label.dropDown.emptyLabel'),
-        iconName: selectedChoiceListConfig?.icon || '', //getIconOfField(field, value) || '',
+        iconName: selectedChoiceListConfig?.icon || '',
         dropdownData: damSelectorConfigs.length > 0 ? damSelectorConfigs.map( ({key:picker,label,icon,description},index) => {
             // const image = item.properties?.find(property => property.name === 'image')?.value;
             // const description = item.properties?.find(property => property.name === 'description')?.value;
@@ -71,13 +71,6 @@ const SelectorCmp = ({classes,...props}) => {
                     }}
                     // onBlur={onBlur}
                 />
-                {/*{inputContext.displayActions && (*/}
-                {/*    <DisplayAction actionKey="content-editor/field/Choicelist"*/}
-                {/*                   field={field}*/}
-                {/*                   inputContext={inputContext}*/}
-                {/*                   // render={ButtonRenderer}*/}
-                {/*    />*/}
-                {/*)}*/}
             </div>
             <div className="flexFluid flexRow alignCenter">
                 <PickerComponent choiceListConfig={selectedChoiceListConfig} resetValue={resetValue} {...props}/>
