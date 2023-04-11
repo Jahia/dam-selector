@@ -9,7 +9,7 @@
     <groupId>org.jahia.se.modules</groupId>
     <artifactId>dam-selector</artifactId>
     <name>DAM Selector</name>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>bundle</packaging>
     <description>This is the custom module (DAM Selector) for running on a Jahia server.</description>
 
@@ -17,7 +17,8 @@
         <connection>scm:git:git@github.com:Jahia/dam-selector.git</connection>
         <developerConnection>scm:git:git@github.com:Jahia/dam-selector.git</developerConnection>
         <url>https://github.com/Jahia/dam-selector</url>
-    </scm>
+      <tag>dam-selector-1.0.0</tag>
+  </scm>
 
     <properties>
         <yarn.arguments>build:production</yarn.arguments>
