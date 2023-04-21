@@ -19,9 +19,9 @@ export const DamSelector = (props) => {
 
     const weakNodeInfo = useQuery(weakrefContentPropsQuery, {
         variables:{
-            uuid : value,
-            skip: !value
-        }
+            uuid : value
+        },
+        skip: !value
     });
     const error = siteNodeInfo?.error || weakNodeInfo?.error;
     const loading = siteNodeInfo?.loading || weakNodeInfo?.loading;
