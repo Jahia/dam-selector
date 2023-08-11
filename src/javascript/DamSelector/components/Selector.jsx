@@ -88,7 +88,11 @@ const SelectorCmp = ({classes, ...props}) => {
             <div className="flexFluid flexRow alignCenter">
                 <PickerComponent {...{
                     ...props,
-                    choiceListConfig: selectedChoiceListConfig
+                    choiceListConfig: selectedChoiceListConfig,
+                    inputContext: {
+                        ...inputContext,
+                        displayActions : false
+                    }
                 }}/>
             </div>
         </>

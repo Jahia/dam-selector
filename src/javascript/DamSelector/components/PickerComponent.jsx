@@ -17,8 +17,7 @@ export const PickerComponent = props => {
         ...props,
         inputContext: {
             ...inputContext,
-            selectorType,
-            displayActions: false
+            selectorType
         },
         value: choiceListConfig?.value || null
     }}/>

@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 
 // Create a dropdown list with by default "jahia", then get from the config the list of DAM to enable <name><selectorType>
 export const DamSelector = props => {
-    const {value, editorContext} = props;
+    const {value, editorContext, inputContext} = props;
     const {t} = useTranslation();
 
     // Check modules loaded to prepare the selector
