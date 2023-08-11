@@ -1,1 +1,1 @@
-export * from './DamSelector'
+export * from './DamSelector';

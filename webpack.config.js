@@ -70,7 +70,7 @@ module.exports = (env, argv) => {
                             }
                         },
                         // Compiles Sass to CSS
-                        'sass-loader'
+                        // 'sass-loader'
                     ]
                 },
                 {
