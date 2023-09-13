@@ -1,16 +1,21 @@
 import React from 'react';
 import {useTranslation} from 'react-i18next';
-import {registry} from '@jahia/ui-extender';
 import {useNodeInfo} from '@jahia/data-helper';
 import {LoaderOverlay} from '../DesignSystem/LoaderOverlay';
-import {Selector, weakrefContentPropsQuery} from './components';
+import {
+    Selector,
+    weakrefContentPropsQuery,
+    getDamSelectorConfig,
+    getValueNodeTypes,
+    getSelectorOptionsTypesTable, getValueChoiceListConfig
+} from './components';
 import {useQuery} from '@apollo/react-hooks';
 import {PickerComponent} from './components';
 import PropTypes from 'prop-types';
 
 // Create a dropdown list with by default "jahia", then get from the config the list of DAM to enable <name><selectorType>
 export const DamSelector = props => {
-    const {value, editorContext, inputContext} = props;
+    const {value, editorContext, field} = props;
     const {t} = useTranslation();
 
     // Check modules loaded to prepare the selector
@@ -44,36 +49,38 @@ export const DamSelector = props => {
     const weakNode = weakNodeInfo?.data?.jcr?.result;
 
     // Get Dam Modules selector config
-    const installedModules = siteNode?.installedModulesWithAllDependencies;
-    const damSelectorConfigs = registry.find({type: 'damSelectorConfiguration'}).filter(({module}) => installedModules.includes(module));
-    if (!value) {
-        damSelectorConfigs.forEach(damSelectorConfig => {
-            damSelectorConfig.value = null;
-        });
-    }
-    // DamSelectorConfigs.map( damSelectorConfig => ({...damSelectorConfig,value:null}))
+    const damSelectorConfigs = getDamSelectorConfig(siteNode);
+    // Get all the node types associated to the value
+    const valueNodeTypes = getValueNodeTypes(weakNode);
+    // Get specific node types that should be handled by jahia Picker based on selectorType configuration
+    const selectorOptionsTypesTable = getSelectorOptionsTypesTable(field)
 
-    const superTypes = weakNode?.primaryNodeType.supertypes?.map(({name}) => name) || [];
-    const mixinTypes = weakNode?.mixinTypes.map(({name}) => name) || [];
-    const primaryNodeType = weakNode?.primaryNodeType?.name;
-    const valueNodeTypes = [primaryNodeType, ...superTypes, ...mixinTypes];
+    let managedValue;
 
     // Case 'default' that means jahia picker
     if (damSelectorConfigs.length === 1) {
-        // Check if current content is a jnt:file
-        const managedValue = !valueNodeTypes.includes('jnt:file')? null : value;
+        // Check if current content is a jnt:file or authorized content based on selectorType configuration
+        managedValue = ['jnt:file',...selectorOptionsTypesTable].filter(type => valueNodeTypes.includes(type)).length > 0 ? value : null;
         // Get jahia picker
-        return <PickerComponent choiceListConfig={{...damSelectorConfigs[0],value:managedValue}} {...props}/>;
+        return <PickerComponent {...{
+            ...props,
+            choiceListConfig:damSelectorConfigs[0],
+            value:managedValue
+        }}/>;
     }
 
-    // More than one dropdown entry
-    const valueChoiceListConfig = damSelectorConfigs.find(({types: damSelectorConfigNodeTypes}) =>
-        damSelectorConfigNodeTypes.filter(damSelectorConfigNodeType => valueNodeTypes.includes(damSelectorConfigNodeType)).length);
-    if (valueChoiceListConfig) {
-        valueChoiceListConfig.value = value;
-    }
+    // More than one dropdown entry, get the damSelector configuration associated to the value/picker selected in the dropdown
+    const valueChoiceListConfig = getValueChoiceListConfig({
+        damSelectorConfigs,
+        selectorOptionsTypesTable,
+        valueNodeTypes
+    })
 
-    return <Selector damSelectorConfigs={damSelectorConfigs} valueChoiceListConfig={valueChoiceListConfig} {...props}/>;
+    return <Selector {...{
+        ...props,
+        damSelectorConfigs,
+        valueChoiceListConfig
+    }}/>;
 };
 
 DamSelector.propTypes = {
@@ -81,5 +88,8 @@ DamSelector.propTypes = {
     editorContext: PropTypes.shape({
         site: PropTypes.string.isRequired,
         lang: PropTypes.string.isRequired
+    }).isRequired,
+    field: PropTypes.shape({
+        selectorOptions: PropTypes.array
     }).isRequired
 };

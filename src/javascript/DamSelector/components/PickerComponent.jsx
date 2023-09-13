@@ -4,7 +4,7 @@ import PropTypes from 'prop-types';
 import {FieldPropTypes} from '../../editor.proptypes';
 
 export const PickerComponent = props => {
-    const {choiceListConfig, field, inputContext} = props;
+    const {choiceListConfig, field, inputContext, value} = props;
     if (!choiceListConfig) {
         return null;
     }
@@ -19,7 +19,7 @@ export const PickerComponent = props => {
             ...inputContext,
             selectorType
         },
-        value: choiceListConfig?.value || null
+        value
     }}/>
     );
 };
@@ -27,5 +27,6 @@ export const PickerComponent = props => {
 PickerComponent.propTypes = {
     field: FieldPropTypes.isRequired,
     inputContext: PropTypes.object.isRequired,
-    choiceListConfig: PropTypes.array.isRequired
+    choiceListConfig: PropTypes.array.isRequired,
+    value: PropTypes.string.isRequired,
 };
