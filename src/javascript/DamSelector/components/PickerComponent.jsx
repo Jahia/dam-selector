@@ -28,5 +28,5 @@ PickerComponent.propTypes = {
     field: FieldPropTypes.isRequired,
     inputContext: PropTypes.object.isRequired,
     choiceListConfig: PropTypes.array.isRequired,
-    value: PropTypes.string.isRequired,
+    value: PropTypes.string.isRequired
 };

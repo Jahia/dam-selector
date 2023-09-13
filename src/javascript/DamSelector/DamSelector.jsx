@@ -53,20 +53,22 @@ export const DamSelector = props => {
     // Get all the node types associated to the value
     const valueNodeTypes = getValueNodeTypes(weakNode);
     // Get specific node types that should be handled by jahia Picker based on selectorType configuration
-    const selectorOptionsTypesTable = getSelectorOptionsTypesTable(field)
+    const selectorOptionsTypesTable = getSelectorOptionsTypesTable(field);
 
     let managedValue;
 
     // Case 'default' that means jahia picker
     if (damSelectorConfigs.length === 1) {
         // Check if current content is a jnt:file or authorized content based on selectorType configuration
-        managedValue = ['jnt:file',...selectorOptionsTypesTable].filter(type => valueNodeTypes.includes(type)).length > 0 ? value : null;
+        managedValue = ['jnt:file', ...selectorOptionsTypesTable].filter(type => valueNodeTypes.includes(type)).length > 0 ? value : null;
         // Get jahia picker
-        return <PickerComponent {...{
+        return (
+            <PickerComponent {...{
             ...props,
-            choiceListConfig:damSelectorConfigs[0],
-            value:managedValue
-        }}/>;
+            choiceListConfig: damSelectorConfigs[0],
+            value: managedValue
+        }}/>
+        );
     }
 
     // More than one dropdown entry, get the damSelector configuration associated to the value/picker selected in the dropdown
@@ -74,13 +76,15 @@ export const DamSelector = props => {
         damSelectorConfigs,
         selectorOptionsTypesTable,
         valueNodeTypes
-    })
+    });
 
-    return <Selector {...{
+    return (
+        <Selector {...{
         ...props,
         damSelectorConfigs,
         valueChoiceListConfig
-    }}/>;
+    }}/>
+    );
 };
 
 DamSelector.propTypes = {

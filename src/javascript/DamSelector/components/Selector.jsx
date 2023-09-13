@@ -18,23 +18,24 @@ const styles = () => ({
 
 // Create a dropdown list with by default "jahia", then get from the config the list of DAM to enable <name><selectorType>
 const SelectorCmp = ({classes, ...props}) => {
-    const {damSelectorConfigs, valueChoiceListConfig, field, id, inputContext, value,onChange,onBlur} = props;
+    const {damSelectorConfigs, valueChoiceListConfig, field, id, inputContext, value, onChange, onBlur} = props;
     const {t} = useTranslation();
 
-    const [managedValue,setManagedValue] = React.useState({config:valueChoiceListConfig,value});
+    const [managedValue, setManagedValue] = React.useState({config: valueChoiceListConfig, value});
 
-    // const [historicalChoiceListValue, setHistoricalChoiceListValue] = React.useState((valueChoiceListConfig && valueChoiceListConfig.key) ? {[valueChoiceListConfig.key]:value} : {})
-    const [historicalChoiceListValue, setHistoricalChoiceListValue] = React.useState({})
-
-    React.useEffect(() => {
-        setManagedValue({config:valueChoiceListConfig,value})
-    },[value,valueChoiceListConfig]);
+    // Const [historicalChoiceListValue, setHistoricalChoiceListValue] = React.useState((valueChoiceListConfig && valueChoiceListConfig.key) ? {[valueChoiceListConfig.key]:value} : {})
+    const [historicalChoiceListValue, setHistoricalChoiceListValue] = React.useState({});
 
     React.useEffect(() => {
-        //clear historic
-        if(!value)
-            setHistoricalChoiceListValue({})
-    },[value]);
+        setManagedValue({config: valueChoiceListConfig, value});
+    }, [value, valueChoiceListConfig]);
+
+    React.useEffect(() => {
+        // Clear historic
+        if (!value) {
+            setHistoricalChoiceListValue({});
+        }
+    }, [value]);
 
     const {readOnly, label, iconName, dropdownData} = React.useMemo(() => ({
         readOnly: field.readOnly /* || field.valueConstraints.length === 0 */,
@@ -59,19 +60,19 @@ const SelectorCmp = ({classes, ...props}) => {
         }) : [{label: '', value: ''}]
     }), [t, field, managedValue, damSelectorConfigs]);
 
-    const handleChange = (item) => {
+    const handleChange = item => {
         if (item.value !== managedValue.config?.key) {
             const changedChoiceListConfig = damSelectorConfigs.find(({key: picker}) => picker === item.value);
-            const histoEntry = managedValue.config && managedValue.config.key ? {[managedValue.config.key] : managedValue.value} : {};
+            const histoEntry = managedValue.config && managedValue.config.key ? {[managedValue.config.key]: managedValue.value} : {};
 
             setManagedValue({
-                config:changedChoiceListConfig,
+                config: changedChoiceListConfig,
                 value: historicalChoiceListValue[changedChoiceListConfig.key] || null
             });
 
-            setHistoricalChoiceListValue({...historicalChoiceListValue,...histoEntry});
+            setHistoricalChoiceListValue({...historicalChoiceListValue, ...histoEntry});
         }
-    }
+    };
 
     return (
         <>
@@ -96,18 +97,18 @@ const SelectorCmp = ({classes, ...props}) => {
                 />
                 {inputContext.displayActions && value && (
                 <DisplayAction {...{
-                    actionKey:"content-editor/field/DamSelector",
+                    actionKey: 'content-editor/field/DamSelector',
                     value,
                     field,
-                    inputContext:{
+                    inputContext: {
                         ...inputContext,
-                        actionContext : {
+                        actionContext: {
                             onChange,
                             onBlur
                         }
                     },
-                    render:ButtonRenderer
-                }} />
+                    render: ButtonRenderer
+                }}/>
                 )}
             </div>
             <div className="flexFluid flexRow alignCenter">
@@ -117,7 +118,7 @@ const SelectorCmp = ({classes, ...props}) => {
                     value: managedValue.value,
                     inputContext: {
                         ...inputContext,
-                        displayActions : false
+                        displayActions: false
                     }
                 }}/>
             </div>
